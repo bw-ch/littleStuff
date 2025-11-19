@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>加油计算器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1a1c2c 0%, #4a192c 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-color: #ff6b6b;
+            --input-bg: rgba(0, 0, 0, 0.2);
+            --success-color: #4ecdc4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary);
+            padding: 20px;
+            transition: background 1s ease;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: -0.5px;
+            cursor: text;
+            border-bottom: 1px dashed transparent;
+            transition: all 0.2s;
+            outline: none;
+            display: inline-block;
+            width: 100%;
+        }
+
+        h1:hover,
+        h1:focus {
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .row {
+            display: flex;
+            gap: 16px;
+        }
+
+        .col {
+            flex: 1;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .unit {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-wrapper input {
+            padding-right: 40px;
+        }
+
+        .current-time-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            padding: 4px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .current-time-btn:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus {
+            border-color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .result-card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .result-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-time {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--success-color);
+            line-height: 1.2;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+
+        .result-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            height: 20px;
+        }
+
+        .breaks-section {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .btn-icon {
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .btn-icon:hover {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .break-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-end;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .break-inputs {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .break-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #ff4757;
+            cursor: pointer;
+            padding: 8px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            height: 46px;
+            display: flex;
+            align-items: center;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 contenteditable="true" spellcheck="false">加油</h1>
+        <div class="input-group">
+            <label>目标总时长</label>
+            <div class="row">
+                <div class="col">
+                    <div class="input-wrapper">
+                        <input type="number" id="targetHours" placeholder="小时" min="0">
+                        <span class="unit">h</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="input-wrapper">
+                        <input type="number" id="targetMinutes" placeholder="分钟" min="0" max="59">
+                        <span class="unit">m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>开始时间点</label>
+            <div class="input-wrapper">
+                <input type="text" id="startTime" placeholder="hhmm，如 0930" maxlength="4" inputmode="numeric">
+                <button class="current-time-btn" title="当前时间">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="result-card">
+            <div class="result-title">结束时间点</div>
+            <div class="result-time" id="endTimeDisplay">--:--</div>
+            <div class="result-sub" id="remainingDisplay"></div>
+        </div>
+        <div class="breaks-section">
+            <div class="section-header">
+                <div class="section-title">中途暂停</div>
+                <button class="btn-icon" id="addBreakBtn" title="添加记录">+</button>
+            </div>
+            <div id="breaksList"></div>
+        </div>
+    </div>
+    <template id="breakItemTemplate">
+        <div class="break-item">
+            <div class="break-inputs">
+                <div class="col">
+                    <label>开始暂停</label>
+                    <div class="input-wrapper">
+                        <input type="text" class="leave-input" placeholder="hhmm" maxlength="4" inputmode="numeric">
+                        <button class="current-time-btn" title="当前时间">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <label>结束暂停</label>
+                    <div class="input-wrapper">
+                        <input type="text" class="resume-input" placeholder="hhmm" maxlength="4" inputmode="numeric">
+                        <button class="current-time-btn" title="当前时间">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button class="delete-btn" title="删除">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+    </template>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const targetHoursInput = document.getElementById('targetHours');
+            const targetMinutesInput = document.getElementById('targetMinutes');
+            const startTimeInput = document.getElementById('startTime');
+            const endTimeDisplay = document.getElementById('endTimeDisplay');
+            const remainingDisplay = document.getElementById('remainingDisplay');
+            const addBreakBtn = document.getElementById('addBreakBtn');
+            const breaksList = document.getElementById('breaksList');
+            const breakItemTemplate = document.getElementById('breakItemTemplate');
+
+            function setRandomBackground() {
+                const gradients = [
+                    'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+                    'linear-gradient(135deg, #232526 0%, #414345 100%)',
+                    'linear-gradient(135deg, #141e30 0%, #243b55 100%)',
+                    'linear-gradient(135deg, #16222a 0%, #3a6073 100%)',
+                    'linear-gradient(135deg, #191654 0%, #43c6ac 100%)',
+                    'linear-gradient(135deg, #000428 0%, #004e92 100%)',
+                    'linear-gradient(135deg, #485563 0%, #29323c 100%)'
+                ];
+                document.body.style.background = gradients[Math.floor(Math.random() * gradients.length)];
+            }
+            setRandomBackground();
+
+            function setCurrentTime(input) {
+                const now = new Date();
+                const h = now.getHours().toString().padStart(2, '0');
+                const m = now.getMinutes().toString().padStart(2, '0');
+                input.value = `${h}${m}`;
+                input.dispatchEvent(new Event('input'));
+            }
+
+            targetHoursInput.addEventListener('input', calculate);
+            targetMinutesInput.addEventListener('input', calculate);
+            startTimeInput.addEventListener('input', calculate);
+
+            const startTimeBtn = startTimeInput.parentElement.querySelector('.current-time-btn');
+            if (startTimeBtn) {
+                startTimeBtn.addEventListener('click', () => setCurrentTime(startTimeInput));
+            }
+
+            addBreakBtn.addEventListener('click', () => {
+                addBreakRow();
+                saveState();
+            });
+
+            function addBreakRow(initialLeave = '', initialResume = '') {
+                const clone = breakItemTemplate.content.cloneNode(true);
+                const row = clone.querySelector('.break-item');
+                const leaveInput = row.querySelector('.leave-input');
+                const resumeInput = row.querySelector('.resume-input');
+                const deleteBtn = row.querySelector('.delete-btn');
+
+                leaveInput.value = initialLeave;
+                resumeInput.value = initialResume;
+
+                const leaveBtn = leaveInput.parentElement.querySelector('.current-time-btn');
+                const resumeBtn = resumeInput.parentElement.querySelector('.current-time-btn');
+
+                if (leaveBtn) leaveBtn.addEventListener('click', () => setCurrentTime(leaveInput));
+                if (resumeBtn) resumeBtn.addEventListener('click', () => setCurrentTime(resumeInput));
+
+                leaveInput.addEventListener('input', calculate);
+                resumeInput.addEventListener('input', calculate);
+
+                deleteBtn.addEventListener('click', () => {
+                    row.remove();
+                    calculate();
+                });
+
+                breaksList.appendChild(row);
+            }
+
+            function parseTime(str) {
+                if (!str) return null;
+                const cleanStr = str.replace(/\D/g, '');
+                let h, m;
+                if (cleanStr.length === 3) {
+                    h = parseInt(cleanStr.substring(0, 1));
+                    m = parseInt(cleanStr.substring(1));
+                } else if (cleanStr.length === 4) {
+                    h = parseInt(cleanStr.substring(0, 2));
+                    m = parseInt(cleanStr.substring(2));
+                } else {
+                    return null;
+                }
+                if (h < 0 || h > 23 || m < 0 || m > 59) return null;
+                return h * 60 + m;
+            }
+
+            function formatTime(minutes) {
+                let h = Math.floor(minutes / 60);
+                let m = minutes % 60;
+                if (h >= 24) h = h % 24;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            }
+
+            function formatDuration(minutes) {
+                const h = Math.floor(minutes / 60);
+                const m = minutes % 60;
+                return `${h}h ${m}m`;
+            }
+
+            function getTodayDateString() {
+                const now = new Date();
+                const yyyy = now.getFullYear();
+                const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+                const dd = now.getDate().toString().padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
+            }
+
+            function saveState() {
+                const state = {
+                    targetHours: targetHoursInput.value,
+                    targetMinutes: targetMinutesInput.value,
+                    startTime: startTimeInput.value,
+                    title: document.querySelector('h1').innerText,
+                    breaks: [],
+                    lastActiveDate: getTodayDateString()
+                };
+
+                const breakRows = Array.from(breaksList.querySelectorAll('.break-item'));
+                breakRows.forEach(row => {
+                    state.breaks.push({
+                        leave: row.querySelector('.leave-input').value,
+                        resume: row.querySelector('.resume-input').value
+                    });
+                });
+
+                localStorage.setItem('punchCardState', JSON.stringify(state));
+            }
+
+            function loadState() {
+                const saved = localStorage.getItem('punchCardState');
+                const today = getTodayDateString();
+
+                if (saved) {
+                    try {
+                        const state = JSON.parse(saved);
+                        if (state.lastActiveDate !== today) {
+                            if (state.targetHours !== undefined) targetHoursInput.value = state.targetHours;
+                            if (state.targetMinutes !== undefined) targetMinutesInput.value = state.targetMinutes;
+                            if (state.title) document.querySelector('h1').innerText = state.title;
+                            startTimeInput.value = '';
+                            breaksList.innerHTML = '';
+                            saveState();
+                        } else {
+                            if (state.targetHours !== undefined) targetHoursInput.value = state.targetHours;
+                            if (state.targetMinutes !== undefined) targetMinutesInput.value = state.targetMinutes;
+                            if (state.startTime !== undefined) startTimeInput.value = state.startTime;
+                            if (state.title) document.querySelector('h1').innerText = state.title;
+                            breaksList.innerHTML = '';
+                            if (state.breaks && Array.isArray(state.breaks)) {
+                                state.breaks.forEach(b => addBreakRow(b.leave, b.resume));
+                            }
+                        }
+                    } catch (e) { }
+                }
+                calculate();
+            }
+
+            const titleElement = document.querySelector('h1');
+            if (titleElement) {
+                titleElement.addEventListener('input', saveState);
+            }
+
+            loadState();
+
+            function calculate() {
+                const targetH = parseInt(targetHoursInput.value) || 0;
+                const targetM = parseInt(targetMinutesInput.value) || 0;
+                const targetTotal = targetH * 60 + targetM;
+                const startM = parseTime(startTimeInput.value);
+
+                saveState();
+
+                if (startM === null) {
+                    endTimeDisplay.textContent = '--:--';
+                    remainingDisplay.textContent = '';
+                    return;
+                }
+
+                const breakRows = Array.from(breaksList.querySelectorAll('.break-item'));
+                let totalBreakM = 0;
+                let isCurrentlyAway = false;
+                let lastLeaveM = null;
+
+                for (const row of breakRows) {
+                    const leaveVal = row.querySelector('.leave-input').value;
+                    const resumeVal = row.querySelector('.resume-input').value;
+                    const leaveM = parseTime(leaveVal);
+                    const resumeM = parseTime(resumeVal);
+
+                    if (leaveM !== null) {
+                        if (resumeM !== null) {
+                            let diff = resumeM - leaveM;
+                            if (diff < 0) diff += 24 * 60;
+                            totalBreakM += diff;
+                        } else {
+                            isCurrentlyAway = true;
+                            lastLeaveM = leaveM;
+                        }
+                    }
+                }
+
+                if (isCurrentlyAway && lastLeaveM !== null) {
+                    let workedSoFar = lastLeaveM - startM;
+                    if (workedSoFar < 0) workedSoFar += 24 * 60;
+                    workedSoFar -= totalBreakM;
+
+                    const remaining = targetTotal - workedSoFar;
+                    endTimeDisplay.textContent = '暂停中';
+                    endTimeDisplay.style.fontSize = '32px';
+                    remainingDisplay.textContent = `仍需: ${formatDuration(remaining)}`;
+                    remainingDisplay.style.color = '#ff6b6b';
+                } else {
+                    const endM = startM + targetTotal + totalBreakM;
+                    endTimeDisplay.textContent = formatTime(endM);
+                    endTimeDisplay.style.fontSize = '48px';
+
+                    if (totalBreakM > 0) {
+                        remainingDisplay.textContent = `中途暂停了 ${formatDuration(totalBreakM)}`;
+                        remainingDisplay.style.color = '#a0a0a0';
+                    } else {
+                        remainingDisplay.textContent = '';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
